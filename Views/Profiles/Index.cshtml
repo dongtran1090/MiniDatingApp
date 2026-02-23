@@ -1,0 +1,59 @@
+﻿@model List<MiniDatingApp.Models.Profile>
+@{
+    ViewData["Title"] = "Profiles";
+    int? currentId = ViewBag.CurrentProfileId as int?;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h3>Profiles</h3>
+
+    <form method="post" asp-action="SetCurrent" class="d-flex gap-2">
+        <select name="profileId" class="form-select" style="width: 280px;">
+            <option value="">-- Who are you ? --</option>
+            @foreach (var p in Model)
+            {
+                <option value="@p.Id" selected="@(currentId == p.Id)">
+                    @p.Name (@p.Email)
+                </option>
+            }
+        </select>
+        <button class="btn btn-outline-primary">Choose </button>
+    </form>
+</div>
+
+@if (currentId == null)
+{
+    <div class="alert alert-warning">Select "Who are you?" to Like and watch the Match.</div>
+}
+
+<div class="row g-3">
+    @foreach (var p in Model)
+    {
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="card-title mb-0">@p.Name</h5>
+                        <span class="badge bg-secondary">@p.Gender</span>
+                    </div>
+                    <div class="text-muted">@p.Age years</div>
+                    <p class="mt-2">@p.Bio</p>
+                    <div class="small text-muted">@p.Email</div>
+                </div>
+                <div class="card-footer bg-white border-0">
+                    @if (currentId == null || currentId == p.Id)
+                    {
+                        <button class="btn btn-sm btn-secondary" disabled>Like</button>
+                    }
+                    else
+                    {
+                        <form method="post" asp-action="Like">
+                            <input type="hidden" name="targetId" value="@p.Id" />
+                            <button class="btn btn-sm btn-danger">Like ❤️</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

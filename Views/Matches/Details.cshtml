@@ -1,0 +1,141 @@
+﻿@model MiniDatingApp.ViewModels.AvailabilityVm
+@using MiniDatingApp.Models
+@{
+    ViewData["Title"] = "Match Details";
+    var p1 = ViewBag.P1 as Profile;
+    var p2 = ViewBag.P2 as Profile;
+    var slots = ViewBag.Slots as List<AvailabilitySlot> ?? new List<AvailabilitySlot>();
+    int currentId = (int)ViewBag.CurrentProfileId;
+
+    // Determine which profile is "me" vs "partner"
+    var me = (p1 != null && p1.Id == currentId) ? p1 : p2;
+    var partner = (me == p1) ? p2 : p1;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+        <h3 class="mb-0">Match #@Model.MatchId</h3>
+        <div class="text-muted small">Select your availability within the next 3 weeks.</div>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h5 class="mb-0">@me?.Name</h5>
+                        <div class="small text-muted">You</div>
+                    </div>
+                    <span class="badge bg-primary">Me</span>
+                </div>
+
+                <div class="mt-2 text-muted">@me?.Gender - @me?.Age</div>
+                <div class="small">@me?.Email</div>
+                <hr />
+                <p class="mb-0" style="white-space: pre-line;">@me?.Bio</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h5 class="mb-0">@partner?.Name</h5>
+                        <div class="small text-muted">Partner</div>
+                    </div>
+                    <span class="badge bg-secondary">Partner</span>
+                </div>
+
+                <div class="mt-2 text-muted">@partner?.Gender - @partner?.Age</div>
+                <div class="small">@partner?.Email</div>
+                <hr />
+                <p class="mb-0" style="white-space: pre-line;">@partner?.Bio</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <h5 class="mb-3">Your availability (next 3 weeks)</h5>
+
+        <form method="post" asp-action="AddAvailability" class="row g-2 align-items-end">
+            <input type="hidden" asp-for="MatchId" />
+            <input type="hidden" asp-for="ProfileId" />
+
+            <div class="col-md-4">
+                <label class="form-label">Date</label>
+                <input asp-for="Date" type="date" class="form-control" />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">From</label>
+                <input asp-for="From" type="time" class="form-control" />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">To</label>
+                <input asp-for="To" type="time" class="form-control" />
+            </div>
+
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100">Save</button>
+            </div>
+        </form>
+
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            <form method="post" asp-action="Suggest">
+                <input type="hidden" name="matchId" value="@Model.MatchId" />
+                <button class="btn btn-success">Find first common slot</button>
+            </form>
+            <div class="small text-muted align-self-center">
+                The system will suggest the earliest overlapping time slot.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <h5 class="mb-0">Selected slots</h5>
+            <span class="small text-muted">Blue row = your slot</span>
+        </div>
+
+        @if (!slots.Any())
+        {
+            <div class="text-muted">No availability slots yet.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 120px;">User</th>
+                            <th>Start</th>
+                            <th>End</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in slots.OrderBy(x => x.StartTime))
+                        {
+                            <tr class="@(s.ProfileId == currentId ? "table-primary" : "")">
+                                <td>
+                                    @(s.ProfileId == currentId ? "You" : "Partner")
+                                    <span class="text-muted">(#@s.ProfileId)</span>
+                                </td>
+                                <td>@s.StartTime.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@s.EndTime.ToString("dd/MM/yyyy HH:mm")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

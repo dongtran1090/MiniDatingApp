@@ -1,0 +1,44 @@
+﻿@model MiniDatingApp.ViewModels.ProfileCreateVm
+@{
+    ViewData["Title"] = "Create Profile";
+}
+
+<h3>Create Profile</h3>
+<form method="post" class="row g-3">
+    <div class="col-md-6">
+        <label class="form-label">Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Age</label>
+        <input asp-for="Age" class="form-control" />
+        <span asp-validation-for="Age" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">Gender</label>
+        <select asp-for="Gender" class="form-select">
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+        </select>
+    </div>
+    <div class="col-12">
+        <div asp-validation-summary="All" class="text-danger mb-2"></div>
+        <label class="form-label">Bio</label>
+        <textarea asp-for="Bio" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Bio" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <label class="form-label">Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <button class="btn btn-primary">Create</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
