@@ -5,27 +5,25 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-var isProd = builder.Environment.IsProduction();
 
-if (isProd)
+if (builder.Environment.IsProduction())
 {
-    // SQLite for deploy
-    builder.Services.AddDbContext<AppDbContext>(opt =>
-        opt.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection")));
+    // Render/Deploy: SQLite (use /tmp to ensure writable)
+    var sqliteConn = builder.Configuration.GetConnectionString("SqliteConnection")
+                    ?? "Data Source=/tmp/app.db";
+
+    builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlite(sqliteConn));
 }
 else
 {
-    // SQL Server for local
+    // Local: SQL Server
     builder.Services.AddDbContext<AppDbContext>(opt =>
         opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 }
 
-builder.Services.AddDbContext<AppDbContext>(opt =>
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
-
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddScoped<MiniDatingApp.Services.MatchService>();
+
 builder.Services.AddSession(options =>
 {
     options.Cookie.HttpOnly = true;
@@ -51,7 +49,6 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
 app.UseSession();
 
 app.MapControllerRoute(
