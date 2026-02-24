@@ -13,7 +13,6 @@ WORKDIR /app
 
 COPY --from=build /app/publish .
 
-# Render provides PORT env var
 ENV ASPNETCORE_URLS=http://0.0.0.0:${PORT}
 
 CMD ["dotnet", "MiniDatingApp.dll"]
