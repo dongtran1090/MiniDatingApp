@@ -5,22 +5,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
+// ===============================
+// DATABASE - SQLite (Local + Render)
+// ===============================
+var sqliteConn = builder.Configuration.GetConnectionString("SqliteConnection")
+                 ?? "Data Source=/tmp/app.db"; // fallback for safety
 
-if (builder.Environment.IsProduction())
-{
-    // Render/Deploy: SQLite (use /tmp to ensure writable)
-    var sqliteConn = builder.Configuration.GetConnectionString("SqliteConnection")
-                    ?? "Data Source=/tmp/app.db";
+builder.Services.AddDbContext<AppDbContext>(opt =>
+    opt.UseSqlite(sqliteConn));
 
-    builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlite(sqliteConn));
-}
-else
-{
-    // Local: SQL Server
-    builder.Services.AddDbContext<AppDbContext>(opt =>
-        opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-}
-
+// ===============================
+// SERVICES
+// ===============================
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddScoped<MiniDatingApp.Services.MatchService>();
 
@@ -31,14 +27,26 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromHours(6);
 });
 
+if (builder.Environment.IsProduction())
+{
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+
 var app = builder.Build();
 
+// ===============================
+// AUTO MIGRATION (Startup)
+// ===============================
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 }
 
+// ===============================
+// MIDDLEWARE
+// ===============================
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");

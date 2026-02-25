@@ -5,7 +5,7 @@
 namespace MiniDatingApp.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateModel : Migration
+    public partial class InitSqliteV2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

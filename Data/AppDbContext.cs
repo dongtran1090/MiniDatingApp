@@ -32,8 +32,7 @@ public class AppDbContext : DbContext
             .HasIndex(m => new { m.UserLowId, m.UserHighId })
             .IsUnique();
 
-        // --- IMPORTANT: Fix multiple cascade paths in SQL Server ---
-        // Like has 2 FK to Profile -> must NOT cascade
+        // Like has 2 FK to Profile -> NoAction to avoid multiple cascade paths (SQL Server)
         modelBuilder.Entity<Like>()
             .HasOne(l => l.Liker)
             .WithMany()
@@ -46,7 +45,7 @@ public class AppDbContext : DbContext
             .HasForeignKey(l => l.LikedId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        // Match has 2 FK to Profile -> also safer set NoAction
+        // Match has 2 FK to Profile -> NoAction
         modelBuilder.Entity<Match>()
             .HasOne(m => m.UserLow)
             .WithMany()
@@ -74,9 +73,9 @@ public class AppDbContext : DbContext
 
         // DateSuggestion: 1-1 with Match (cascade ok)
         modelBuilder.Entity<Match>()
-            .HasOne(m => m.Suggestion)
-            .WithOne(s => s.Match!)
-            .HasForeignKey<DateSuggestion>(s => s.MatchId)
-            .OnDelete(DeleteBehavior.Cascade);
+         .HasOne(m => m.Suggestion)
+         .WithOne(s => s.Match!)
+         .HasForeignKey<DateSuggestion>(s => s.MatchId)
+         .OnDelete(DeleteBehavior.Cascade);
     }
 }
