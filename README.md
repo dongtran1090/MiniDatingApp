@@ -1,5 +1,9 @@
 # Mini Dating App Prototype – Clique83 Technical Test (2026)
 
+## Live Demo
+- GitHub: https://github.com/dongtran1090/MiniDatingApp
+- Live (Render): https://minidatingapp-001.onrender.com/
+
 ## Overview
 A simple mini dating app prototype inspired by Breeze Dating App.  
 The goal is to demonstrate the ability to build a complete feature end-to-end with clear logic and readable code.
